@@ -20,7 +20,7 @@ def fill_networks(seed, filename):
         score = list_line[INDEX_SCORE]
         extra = list_line[INDEX_EXTRA_DATA:]
         
-        if (g1 in seed or g2 in seed): # todo parse score
+        if ((g1 in seed or g2 in seed) and float(score) > 0):
             networks.update(set([g1, g2]))
         
             row = [g1, g2, score]
@@ -48,6 +48,14 @@ def test_two_rows_one_with_seed():
     else:
         print("pass")
 
+def test_two_rows_one_with_nonzero_score():
+    got = fill_networks(["1", "4"], "test_two_rows_one_with_nonzero_score")
+    target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
+    if (got != target):
+        print("FAIL!\ngot: %s\ntarget: %s\n" % (got, target))
+    else:
+        print("pass")
 
 test_readfile_and_output()
 test_two_rows_one_with_seed()
+test_two_rows_one_with_nonzero_score()
