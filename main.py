@@ -4,6 +4,10 @@ INDEX_SCORE = 5
 INDEX_EXTRA_DATA = 6
 
 
+def relevant_score(score):
+    return float(score) != 0
+
+
 def find_networks(f):
     # initialise empty set of sets
     # each set represents a connected network
@@ -16,7 +20,7 @@ def find_networks(f):
         score = list_line[INDEX_SCORE]
 
         # if the nodes are connected
-        if float(score) > 0:
+        if relevant_score(score):
 
             g1_index = -1
             g2_index = -1
@@ -77,7 +81,7 @@ def get_data_for_seeded_networks(seeded_networks, f):
         score = list_line[INDEX_SCORE]
         extra = list_line[INDEX_EXTRA_DATA:]
 
-        if float(score) != 0:
+        if relevant_score(score):
             for seeded_network in seeded_networks:
                 if g1 in seeded_network:  # g2 must also be in the network
                     row = [g1, g2, score]
@@ -158,6 +162,12 @@ def test_ignore_zero_conns_to_seed():
     print_results(got, target)
 
 
+def test_include_negative_conns():
+    got = main(["1"], "test_include_negative_conns")
+    target = [["1", "2", "-1.0", "0", "0", "0", "0", "0\n"]]
+    print_results(got, target)
+
+
 test_readfile_and_output()
 test_two_rows_one_with_seed()
 test_two_rows_one_with_nonzero_score()
@@ -165,3 +175,4 @@ test_network_genes_removed_from_seed()
 test_union()
 test_ignore_unseeded()
 test_ignore_zero_conns_to_seed()
+test_include_negative_conns()
