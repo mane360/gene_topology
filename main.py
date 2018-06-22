@@ -77,12 +77,13 @@ def get_data_for_seeded_networks(seeded_networks, f):
         score = list_line[INDEX_SCORE]
         extra = list_line[INDEX_EXTRA_DATA:]
 
-        for seeded_network in seeded_networks:
-            if g1 in seeded_network:  # g2 must also be in the network
-                row = [g1, g2, score]
-                row.extend(extra)
-                results.append(row)
-                break
+        if float(score) != 0:
+            for seeded_network in seeded_networks:
+                if g1 in seeded_network:  # g2 must also be in the network
+                    row = [g1, g2, score]
+                    row.extend(extra)
+                    results.append(row)
+                    break
 
     return results
 
@@ -151,9 +152,16 @@ def test_ignore_unseeded():
     print_results(got, target)
 
 
+def test_ignore_zero_conns_to_seed():
+    got = main(["vps8"], "test_ignore_zero_conns_to_seed")
+    target = [['vps8', 'ecm15', '0.1157', '7.554e-04', '0.7640', '1.0230', '0.8973', '0.0269\n']]
+    print_results(got, target)
+
+
 test_readfile_and_output()
 test_two_rows_one_with_seed()
 test_two_rows_one_with_nonzero_score()
 test_network_genes_removed_from_seed()
 test_union()
 test_ignore_unseeded()
+test_ignore_zero_conns_to_seed()
