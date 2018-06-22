@@ -68,8 +68,8 @@ def fill_networks(seed, filename):
     # SECOND PASS - GET DATA FOR SEEDED NETWORKS
     
     f.seek(0)
-    results = []
     f.readline()  # skip header
+    results = []
     
     for line in f:
         list_line = line.split("\t")
@@ -78,12 +78,12 @@ def fill_networks(seed, filename):
         score = list_line[INDEX_SCORE]
         extra = list_line[INDEX_EXTRA_DATA:]
         
-        for network in networks:
-            if g1 in network:  # g2 must also be in the network
+        for seeded_network in seeded_networks:
+            if g1 in seeded_network:  # g2 must also be in the network
                 row = [g1, g2, score]
                 row.extend(extra)
                 results.append(row)
-            break
+                break
     
     return results
 
@@ -133,8 +133,15 @@ def test_union():
     print_results(got, target)
 
 
+def test_ignore_unseeded():
+    got = fill_networks(["1"], "test_ignore_unseeded")
+    target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
+    print_results(got, target)
+
+
 test_readfile_and_output()
 test_two_rows_one_with_seed()
 test_two_rows_one_with_nonzero_score()
 test_network_genes_removed_from_seed()
 test_union()
+test_ignore_unseeded()
