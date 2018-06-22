@@ -1,19 +1,14 @@
-INDEX_G1 = 1
+INDEX_G1 = 1  # type: int
 INDEX_G2 = 3
 INDEX_SCORE = 5
 INDEX_EXTRA_DATA = 6
 
 
-def fill_networks(seed, filename):
-    f = open(filename, "r")    
-    f.readline()  # skip header
-    
-    # FIRST PASS - FIND ALL NETWORKS
-    
+def find_networks(f):
     # initialise empty set of sets
     # each set represents a connected network
-    networks = []   
-    
+    networks = []
+
     for line in f:
         list_line = line.split("\t")
         g1 = list_line[INDEX_G1]
@@ -55,38 +50,55 @@ def fill_networks(seed, filename):
                 g2_network.add(g1)
             else:
                 raise Exception()
-        
-    # REMOVE NETWORKS THAT DON'T HAVE A SEED
-    
+
+    return networks
+
+
+def filter_by_seed(networks, seed):
     seeded_networks = []
     for network in networks:
         # if there is a seed in the network
         if len(network.intersection(seed)) > 0:
             seeded_networks.append(network)
         # otherwise, ignore it
-    
-    # SECOND PASS - GET DATA FOR SEEDED NETWORKS
-    
+
+    return seeded_networks
+
+
+def get_data_for_seeded_networks(seeded_networks, f):
     f.seek(0)
     f.readline()  # skip header
     results = []
-    
+
     for line in f:
         list_line = line.split("\t")
         g1 = list_line[INDEX_G1]
         g2 = list_line[INDEX_G2]
         score = list_line[INDEX_SCORE]
         extra = list_line[INDEX_EXTRA_DATA:]
-        
+
         for seeded_network in seeded_networks:
             if g1 in seeded_network:  # g2 must also be in the network
                 row = [g1, g2, score]
                 row.extend(extra)
                 results.append(row)
                 break
-    
+
     return results
 
+
+def main(seed, filename):
+    f = open(filename, "r")    
+    f.readline()  # skip header
+    
+    networks = find_networks(f)
+        
+    seeded_networks = filter_by_seed(networks, seed)
+    
+    results = get_data_for_seeded_networks(seeded_networks, f)
+    
+    return results
+    
 
 # TESTS
 
@@ -99,25 +111,25 @@ def print_results(got, target):
 
 
 def test_readfile_and_output():
-    got = fill_networks(["1"], "test_readfile_and_output")
+    got = main(["1"], "test_readfile_and_output")
     target = [["1", "2", "3", "4", "5", "6", "7", "8\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_seed():
-    got = fill_networks(["1"], "test_two_rows_one_with_seed")
+    got = main(["1"], "test_two_rows_one_with_seed")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_nonzero_score():
-    got = fill_networks(["1", "4"], "test_two_rows_one_with_nonzero_score")
+    got = main(["1", "4"], "test_two_rows_one_with_nonzero_score")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_network_genes_removed_from_seed():
-    got = fill_networks(["1"], "test_network_genes_removed_from_seed")
+    got = main(["1"], "test_network_genes_removed_from_seed")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"]]
@@ -125,7 +137,7 @@ def test_network_genes_removed_from_seed():
 
 
 def test_union():
-    got = fill_networks(["1"], "test_union")
+    got = main(["1"], "test_union")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"],
@@ -134,7 +146,7 @@ def test_union():
 
 
 def test_ignore_unseeded():
-    got = fill_networks(["1"], "test_ignore_unseeded")
+    got = main(["1"], "test_ignore_unseeded")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
