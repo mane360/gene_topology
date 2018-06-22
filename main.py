@@ -3,9 +3,10 @@ INDEX_G2 = 3
 INDEX_SCORE = 5
 INDEX_EXTRA_DATA = 6
 
+
 def fill_networks(seed, filename):
     f = open(filename, "r")    
-    f.readline() # skip header
+    f.readline()  # skip header
     
     # FIRST PASS - FIND ALL NETWORKS
     
@@ -18,36 +19,37 @@ def fill_networks(seed, filename):
         g1 = list_line[INDEX_G1]
         g2 = list_line[INDEX_G2]
         score = list_line[INDEX_SCORE]
-        
-        if (float(score) > 0): # if the nodes are connected
+
+        # if the nodes are connected
+        if float(score) > 0:
 
             g1_index = -1
             g2_index = -1
             g1_network = []
             g2_network = []
-            for index, network in enumerate(networks): # todo union
+            for index, network in enumerate(networks):
 
-                if (g1 in network):
+                if g1 in network:
                     g1_index = index
                     g1_network = network
-                if (g2 in network):
+                if g2 in network:
                     g2_index = index
                     g2_network = network
 
-                if (g1_index > 0 and g2_index > 0):
+                if g1_index > 0 and g2_index > 0:
                     break
 
             # if new network
-            if (g1_index < 0 and g2_index < 0):
-                networks.append(set([g1, g2]))
+            if g1_index < 0 and g2_index < 0:
+                networks.append({g1, g2})
 
             # if 2 current networks, union
-            elif (g1_index > -1 and g2_index > -1):
+            elif g1_index > -1 and g2_index > -1:
                 networks[g1_index].update(networks[g2_index])
                 del networks[g2_index]
 
             # if 1 current network
-            elif (g1_index > -1):
+            elif g1_index > -1:
                 g1_network.add(g2)
             elif g2_index > -1:
                 g2_network.add(g1)
@@ -58,7 +60,8 @@ def fill_networks(seed, filename):
     
     seeded_networks = []
     for network in networks:
-        if (len(network.intersection(seed)) > 0): # if there is a seed in the network
+        # if there is a seed in the network
+        if len(network.intersection(seed)) > 0:
             seeded_networks.append(network)
         # otherwise, ignore it
     
@@ -66,7 +69,7 @@ def fill_networks(seed, filename):
     
     f.seek(0)
     results = []
-    f.readline() # skip header
+    f.readline()  # skip header
     
     for line in f:
         list_line = line.split("\t")
@@ -76,7 +79,7 @@ def fill_networks(seed, filename):
         extra = list_line[INDEX_EXTRA_DATA:]
         
         for network in networks:
-            if g1 in network: # g2 must also be in the network
+            if g1 in network:  # g2 must also be in the network
                 row = [g1, g2, score]
                 row.extend(extra)
                 results.append(row)
@@ -89,7 +92,7 @@ def fill_networks(seed, filename):
 
 
 def print_results(got, target):
-    if (got != target):
+    if got != target:
         print("FAIL!\ngot: %s\ntarget: %s\n" % (got, target))
     else:
         print("pass")
