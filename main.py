@@ -199,18 +199,18 @@ def test_new_conn_in_existing_network():
 
 
 def test_full():
-    got = main(["vps8"], "test_data")
+    got = main(["fun14"], "test_data")
     print(got)
 
 
-test_readfile_and_output()
-test_two_rows_one_with_seed()
-test_two_rows_one_with_nonzero_score()
-test_network_genes_removed_from_seed()
-test_union()
-test_ignore_unseeded()
-test_ignore_zero_conns_to_seed()
-test_include_negative_conns()
-test_big()
-test_new_conn_in_existing_network()
-#test_full()
+# test_readfile_and_output()
+# test_two_rows_one_with_seed()
+# test_two_rows_one_with_nonzero_score()
+# test_network_genes_removed_from_seed()
+# test_union()
+# test_ignore_unseeded()
+# test_ignore_zero_conns_to_seed()
+# test_include_negative_conns()
+# test_big()
+# test_new_conn_in_existing_network()
+test_full()
