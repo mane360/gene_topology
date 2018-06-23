@@ -78,6 +78,31 @@ def find_networks(f):
     return networks
 
 
+def find_cropped_networks(f, seed, distance_from_seed):
+    seeds = set(seed)
+    adjacent_to_seed = set()
+
+    for counter in range(distance_from_seed):
+        for line in f:
+            list_line = line.split("\t")
+            g1 = list_line[INDEX_G1]
+            g2 = list_line[INDEX_G2]
+            score = list_line[INDEX_SCORE]
+            
+            if relevant_score(score):
+                if g1 in seeds or g2 in seeds:
+                    adjacent_to_seed.add(g1)
+                    adjacent_to_seed.add(g2)
+        seeds.update(adjacent_to_seed)
+        adjacent_to_seed = set()
+
+    # for now we are treating everything connected to a seed as a
+    # single network
+    networks = [seeds]
+
+    return networks
+
+
 def filter_by_seed(networks, seed):
     seeded_networks = []
     for network in networks:
@@ -107,7 +132,7 @@ def get_data_for_seeded_networks(seeded_networks, f, test):
 
         if relevant_score(score):
             for index, seeded_network in enumerate(seeded_networks):
-                if g1 in seeded_network:  # g2 must also be in the network
+                if g1 in seeded_network and g2 in seeded_network:
                     row = [g1, g2, score]
                     row.extend(extra)
                     results.append(row)
