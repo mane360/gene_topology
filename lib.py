@@ -4,6 +4,24 @@ INDEX_SCORE = 5
 INDEX_EXTRA_DATA = 6
 
 
+def read(filename, skip_header=True):
+    f = open(filename)
+
+    if skip_header:
+        f.readline()
+
+    return f
+
+
+def get_seed_list(seed_file):
+    seed = []
+
+    for line in seed_file:
+        seed.append(line.strip())
+
+    return seed
+
+
 def relevant_score(score):
     return float(score) != 0
 

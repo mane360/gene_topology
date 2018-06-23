@@ -8,26 +8,31 @@ def print_results(got, target):
         print("pass")
 
 
+def run_test(filename, test=True):
+    return main("tests/" + filename + "_SEED",
+                "tests/" + filename, test)
+
+
 def test_readfile_and_output():
-    got = main(["1"], "tests/test_readfile_and_output", True)
+    got = run_test("test_readfile_and_output")
     target = [["1", "2", "3", "4", "5", "6", "7", "8\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_seed():
-    got = main(["1"], "tests/test_two_rows_one_with_seed", True)
+    got = run_test("test_two_rows_one_with_seed")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_nonzero_score():
-    got = main(["1", "4"], "tests/test_two_rows_one_with_nonzero_score", True)
+    got = run_test("test_two_rows_one_with_nonzero_score")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_network_genes_removed_from_seed():
-    got = main(["1"], "tests/test_network_genes_removed_from_seed", True)
+    got = run_test("test_network_genes_removed_from_seed")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"]]
@@ -35,7 +40,7 @@ def test_network_genes_removed_from_seed():
 
 
 def test_union():
-    got = main(["1"], "tests/test_union", True)
+    got = run_test("test_union")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"],
@@ -44,25 +49,25 @@ def test_union():
 
 
 def test_ignore_unseeded():
-    got = main(["1"], "tests/test_ignore_unseeded", True)
+    got = run_test("test_ignore_unseeded")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_ignore_zero_conns_to_seed():
-    got = main(["vps8"], "tests/test_ignore_zero_conns_to_seed", True)
+    got = run_test("test_ignore_zero_conns_to_seed")
     target = [['vps8', 'ecm15', '0.1157', '7.554e-04', '0.7640', '1.0230', '0.8973', '0.0269\n']]
     print_results(got, target)
 
 
 def test_include_negative_conns():
-    got = main(["1"], "tests/test_include_negative_conns", True)
+    got = run_test("test_include_negative_conns")
     target = [["1", "2", "-1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_big():
-    got = main(["fun14"], "tests/test_big", True)
+    got = run_test("test_big")
     target = [['vps8', 'ecm15', '0.1157', '7.554e-04', '0.7640', '1.0230', '0.8973', '0.0269\n'],
               ['vps8', 'hta2', '0.0290', '2.500e-01', '0.7640', '1.0115', '0.8018', '0.0333\n'],
               ['vps8', 'pdr3', '-0.0278', '2.418e-01', '0.7640', '1.0365', '0.7641', '0.0307\n'],
@@ -82,7 +87,7 @@ def test_big():
 
 
 def test_new_conn_in_existing_network():
-    got = main(["1"], "tests/test_new_conn_in_existing_network", True)
+    got = run_test("test_new_conn_in_existing_network")
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "3", "1.0", "0", "0", "0", "0", "0\n"],
               ["1", "3", "1.0", "0", "0", "0", "0", "0\n"]]
@@ -90,7 +95,7 @@ def test_new_conn_in_existing_network():
 
 
 def test_full():
-    main(["fun14", "caitlin1"], "test_data", False)
+    run_test("test_data", False)
 
 
 test_readfile_and_output()
