@@ -71,10 +71,14 @@ def filter_by_seed(networks, seed):
     return seeded_networks
 
 
-def get_data_for_seeded_networks(seeded_networks, f):
+def get_data_for_seeded_networks(seeded_networks, f, test):
     f.seek(0)
     f.readline()  # skip header
     results = []
+
+    # open the output files for writing
+    out_files = [open("gene_topology_output_network_" + str(index), "w")
+                 for index in range(len(seeded_networks))]
 
     for line in f:
         list_line = line.split("\t")
@@ -84,17 +88,24 @@ def get_data_for_seeded_networks(seeded_networks, f):
         extra = list_line[INDEX_EXTRA_DATA:]
 
         if relevant_score(score):
-            for seeded_network in seeded_networks:
+            for index, seeded_network in enumerate(seeded_networks):
                 if g1 in seeded_network:  # g2 must also be in the network
                     row = [g1, g2, score]
                     row.extend(extra)
                     results.append(row)
+
+                    if not test:
+                        out_files[index].write("\t".join(row) + "\n")
+
                     break
+
+    for out_file in out_files:
+        out_file.close()
 
     return results
 
 
-def main(seed, filename):
+def main(seed, filename, test):
     f = open(filename, "r")    
     f.readline()  # skip header
     
@@ -102,7 +113,7 @@ def main(seed, filename):
         
     seeded_networks = filter_by_seed(networks, seed)
     
-    results = get_data_for_seeded_networks(seeded_networks, f)
+    results = get_data_for_seeded_networks(seeded_networks, f, test)
     
     return results
     
@@ -118,25 +129,25 @@ def print_results(got, target):
 
 
 def test_readfile_and_output():
-    got = main(["1"], "test_readfile_and_output")
+    got = main(["1"], "test_readfile_and_output", True)
     target = [["1", "2", "3", "4", "5", "6", "7", "8\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_seed():
-    got = main(["1"], "test_two_rows_one_with_seed")
+    got = main(["1"], "test_two_rows_one_with_seed", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_two_rows_one_with_nonzero_score():
-    got = main(["1", "4"], "test_two_rows_one_with_nonzero_score")
+    got = main(["1", "4"], "test_two_rows_one_with_nonzero_score", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_network_genes_removed_from_seed():
-    got = main(["1"], "test_network_genes_removed_from_seed")
+    got = main(["1"], "test_network_genes_removed_from_seed", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"]]
@@ -144,7 +155,7 @@ def test_network_genes_removed_from_seed():
 
 
 def test_union():
-    got = main(["1"], "test_union")
+    got = main(["1"], "test_union", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["4", "5", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "4", "1.0", "0", "0", "0", "0", "0\n"],
@@ -153,25 +164,25 @@ def test_union():
 
 
 def test_ignore_unseeded():
-    got = main(["1"], "test_ignore_unseeded")
+    got = main(["1"], "test_ignore_unseeded", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_ignore_zero_conns_to_seed():
-    got = main(["vps8"], "test_ignore_zero_conns_to_seed")
+    got = main(["vps8"], "test_ignore_zero_conns_to_seed", True)
     target = [['vps8', 'ecm15', '0.1157', '7.554e-04', '0.7640', '1.0230', '0.8973', '0.0269\n']]
     print_results(got, target)
 
 
 def test_include_negative_conns():
-    got = main(["1"], "test_include_negative_conns")
+    got = main(["1"], "test_include_negative_conns", True)
     target = [["1", "2", "-1.0", "0", "0", "0", "0", "0\n"]]
     print_results(got, target)
 
 
 def test_big():
-    got = main(["fun14"], "test_big")
+    got = main(["fun14"], "test_big", True)
     target = [['vps8', 'ecm15', '0.1157', '7.554e-04', '0.7640', '1.0230', '0.8973', '0.0269\n'],
               ['vps8', 'hta2', '0.0290', '2.500e-01', '0.7640', '1.0115', '0.8018', '0.0333\n'],
               ['vps8', 'pdr3', '-0.0278', '2.418e-01', '0.7640', '1.0365', '0.7641', '0.0307\n'],
@@ -191,7 +202,7 @@ def test_big():
 
 
 def test_new_conn_in_existing_network():
-    got = main(["1"], "test_new_conn_in_existing_network")
+    got = main(["1"], "test_new_conn_in_existing_network", True)
     target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
               ["2", "3", "1.0", "0", "0", "0", "0", "0\n"],
               ["1", "3", "1.0", "0", "0", "0", "0", "0\n"]]
@@ -199,18 +210,17 @@ def test_new_conn_in_existing_network():
 
 
 def test_full():
-    got = main(["fun14"], "test_data")
-    print(got)
+    main(["fun14", "caitlin1"], "test_data", False)
 
 
-# test_readfile_and_output()
-# test_two_rows_one_with_seed()
-# test_two_rows_one_with_nonzero_score()
-# test_network_genes_removed_from_seed()
-# test_union()
-# test_ignore_unseeded()
-# test_ignore_zero_conns_to_seed()
-# test_include_negative_conns()
-# test_big()
-# test_new_conn_in_existing_network()
-test_full()
+test_readfile_and_output()
+test_two_rows_one_with_seed()
+test_two_rows_one_with_nonzero_score()
+test_network_genes_removed_from_seed()
+test_union()
+test_ignore_unseeded()
+test_ignore_zero_conns_to_seed()
+test_include_negative_conns()
+test_big()
+test_new_conn_in_existing_network()
+# test_full()
