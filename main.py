@@ -77,7 +77,7 @@ def get_data_for_seeded_networks(seeded_networks, f, test):
     results = []
 
     # open the output files for writing
-    out_files = [open("gene_topology_output_network_" + str(index), "w")
+    out_files = [open("output/gene_topology_output_network_" + str(index), "w")
                  for index in range(len(seeded_networks))]
 
     for line in f:
