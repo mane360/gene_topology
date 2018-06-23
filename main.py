@@ -35,22 +35,24 @@ def find_networks(f):
                     g2_index = index
                     g2_network = network
 
-                if g1_index > 0 and g2_index > 0:
+                if g1_index != -1 and g2_index != -1:
                     break
 
             # if new network
-            if g1_index < 0 and g2_index < 0:
+            if g1_index == -1 and g2_index == -1:
                 networks.append({g1, g2})
 
-            # if 2 current networks, union
-            elif g1_index > -1 and g2_index > -1:
-                networks[g1_index].update(networks[g2_index])
-                del networks[g2_index]
+            elif g1_index != -1 and g2_index != -1:
+                # if 2 different current networks, union those networks
+                if g1_index != g2_index:
+                    networks[g1_index].update(networks[g2_index])
+                    del networks[g2_index]
+                # otherwise ignore - they are already recorded
 
             # if 1 current network
-            elif g1_index > -1:
+            elif g1_index != -1:
                 g1_network.add(g2)
-            elif g2_index > -1:
+            elif g2_index != -1:
                 g2_network.add(g1)
             else:
                 raise Exception()
@@ -188,6 +190,19 @@ def test_big():
     print_results(got, target)
 
 
+def test_new_conn_in_existing_network():
+    got = main(["1"], "test_new_conn_in_existing_network")
+    target = [["1", "2", "1.0", "0", "0", "0", "0", "0\n"],
+              ["2", "3", "1.0", "0", "0", "0", "0", "0\n"],
+              ["1", "3", "1.0", "0", "0", "0", "0", "0\n"]]
+    print_results(got, target)
+
+
+def test_full():
+    got = main(["vps8"], "test_data")
+    print(got)
+
+
 test_readfile_and_output()
 test_two_rows_one_with_seed()
 test_two_rows_one_with_nonzero_score()
@@ -197,3 +212,5 @@ test_ignore_unseeded()
 test_ignore_zero_conns_to_seed()
 test_include_negative_conns()
 test_big()
+test_new_conn_in_existing_network()
+#test_full()
