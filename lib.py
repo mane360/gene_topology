@@ -23,7 +23,10 @@ def get_seed_list(seed_file):
 
 
 def relevant_score(score):
-    return float(score) != 0
+    return float(score) > 0.16 or float(score) < -0.12
+
+def significant_p(pvalue):
+    return float(pvalue) < 0.05
 
 
 def find_networks(f):
@@ -36,9 +39,10 @@ def find_networks(f):
         g1 = list_line[INDEX_G1]
         g2 = list_line[INDEX_G2]
         score = list_line[INDEX_SCORE]
+        pvalue = list_line[INDEX_EXTRA_DATA]
 
         # if the nodes are connected
-        if relevant_score(score):
+        if relevant_score(score) and significant_p(pvalue) :
 
             g1_index = -1
             g2_index = -1
