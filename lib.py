@@ -78,7 +78,12 @@ def find_networks(f):
     return networks
 
 
+def gene_pair_symbol(g1, g2):
+    return "%s:%s" % (g1, g2)
+
+
 def find_cropped_networks(f, seed, distance_from_seed):
+    gene_pairs = set()
     seeds = set(seed)
     adjacent_to_seed = set()
 
@@ -91,16 +96,19 @@ def find_cropped_networks(f, seed, distance_from_seed):
             
             if relevant_score(score):
                 if g1 in seeds or g2 in seeds:
-                    adjacent_to_seed.add(g1)
-                    adjacent_to_seed.add(g2)
-        seeds.update(adjacent_to_seed)
+                    gene_pairs.add(gene_pair_symbol(g1, g2))
+                    if g1 in seeds:
+                        adjacent_to_seed.add(g2)
+                    else:
+                        adjacent_to_seed.add(g1)
+        seeds = adjacent_to_seed
         adjacent_to_seed = set()
 
-    # for now we are treating everything connected to a seed as a
-    # single network
-    networks = [seeds]
 
-    return networks
+    print(gene_pairs)
+    print(len(gene_pairs))
+
+    return gene_pairs
 
 
 def filter_by_seed(networks, seed):
@@ -144,5 +152,34 @@ def get_data_for_seeded_networks(seeded_networks, f, test):
 
     for out_file in out_files:
         out_file.close()
+
+
+# todo sort out this vs above
+def get_data_for_seeded_networks_pairs(seeded_networks, f, test):
+    f.seek(0)
+    f.readline()  # skip header
+    results = []
+
+    # open the output files for writing
+    out_file = open("output/gene_topology_output_network", "w")
+
+    for line in f:
+        list_line = line.split("\t")
+        g1 = list_line[INDEX_G1]
+        g2 = list_line[INDEX_G2]
+        score = list_line[INDEX_SCORE]
+        extra = list_line[INDEX_EXTRA_DATA:]
+
+        if relevant_score(score):
+            if gene_pair_symbol(g1, g2) in seeded_networks:
+                row = [g1, g2, score]
+                row.extend(extra)
+                results.append(row)
+
+                if not test:
+                    write_row = "\t".join(row)
+                    out_file.write(write_row)
+
+    out_file.close()
 
     return results

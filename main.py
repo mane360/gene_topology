@@ -20,12 +20,15 @@ def main(seed_filename, data_filename, distance=-1, test=False):
         print("network doesnt contain aseed")
         seeded_networks = filter_by_seed(networks, seed)
         
+        print("output")
+        results = get_data_for_seeded_networks(seeded_networks, data_file, test)
+        
     else:
         print("make list of networks to distance %s" % distance)
         seeded_networks = find_cropped_networks(data_file, seed, distance)
 
-    print("output")
-    results = get_data_for_seeded_networks(seeded_networks, data_file, test)
+        print("output")
+        results = get_data_for_seeded_networks_pairs(seeded_networks, data_file, test)
     
     print("Done")
     return results
