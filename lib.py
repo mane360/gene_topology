@@ -88,6 +88,7 @@ def find_cropped_networks(f, seed, distance_from_seed):
     adjacent_to_seed = set()
 
     for counter in range(distance_from_seed):
+        print("counter: %s" % counter)
         for line in f:
             list_line = line.split("\t")
             g1 = list_line[INDEX_G1]
@@ -101,11 +102,11 @@ def find_cropped_networks(f, seed, distance_from_seed):
                         adjacent_to_seed.add(g2)
                     else:
                         adjacent_to_seed.add(g1)
-        seeds = adjacent_to_seed
-        adjacent_to_seed = set()
+        seeds.update(adjacent_to_seed)
+        f.seek(0)
+        f.readline()
 
 
-    print(gene_pairs)
     print(len(gene_pairs))
 
     return gene_pairs
